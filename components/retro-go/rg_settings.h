@@ -8,7 +8,6 @@
 #define NS_APP    ((char *)1)
 #define NS_FILE   ((char *)2)
 #define NS_WIFI   ((char *)3)
-#define NS_BOOT   ((char *)4)
 
 // Safe mode means no loading/saving config files
 void rg_settings_init(bool safe_mode);

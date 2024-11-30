@@ -22,8 +22,6 @@ static cJSON *json_root(const char *name, bool set_dirty)
         name = rg_basename(rg_system_get_app()->romPath);
     else if (name == NS_WIFI)
         name = "wifi";
-    else if (name == NS_BOOT)
-        name = "boot";
 
     cJSON *branch = cJSON_GetObjectItem(config_root, name);
     if (!branch)
@@ -84,7 +82,6 @@ void rg_settings_init(bool _safe_mode)
     config_root = cJSON_CreateObject();
     safe_mode = _safe_mode;
     json_root(NS_GLOBAL, 0);
-    json_root(NS_BOOT, 0);
 }
 
 void rg_settings_commit(void)

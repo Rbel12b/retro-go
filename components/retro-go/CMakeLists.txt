@@ -27,14 +27,9 @@ set_source_files_properties(
     -O2
 )
 set_source_files_properties(
-    rg_display.c drivers/display/vga.cpp ./../ESP32-S3-VGA/src/Mode.cpp ./../ESP32-S3-VGA/src/PinConfig.cpp ./../ESP32-S3-VGA/src/VGA.cpp
+    drivers/display/vga.cpp ./../ESP32-S3-VGA/src/VGA.cpp
     PROPERTIES COMPILE_FLAGS
     -O3
-)
-set_source_files_properties(
-    rg_display.cpp
-    PROPERTIES COMPILE_FLAGS
-    -fpermissive
 )
 if(RG_ENABLE_NETPLAY)
     component_compile_options(-DRG_ENABLE_NETWORKING -DRG_ENABLE_NETPLAY)

@@ -1803,24 +1803,12 @@ static rg_gui_event_t slot_select_cb(rg_gui_option_t *option, rg_gui_event_t eve
 
 int rg_gui_savestate_menu(const char *title, const char *rom_path)
 {
-    rg_emu_states_t *savestates = rg_emu_get_states(rom_path, 16);
+    rg_emu_states_t *savestates = rg_emu_get_states(rom_path, 4);
     const rg_gui_option_t choices[] = {
         {(intptr_t)&savestates->slots[0], _("Slot 0"), NULL, RG_DIALOG_FLAG_NORMAL, &slot_select_cb},
         {(intptr_t)&savestates->slots[1], _("Slot 1"), NULL, RG_DIALOG_FLAG_NORMAL, &slot_select_cb},
         {(intptr_t)&savestates->slots[2], _("Slot 2"), NULL, RG_DIALOG_FLAG_NORMAL, &slot_select_cb},
         {(intptr_t)&savestates->slots[3], _("Slot 3"), NULL, RG_DIALOG_FLAG_NORMAL, &slot_select_cb},
-        {(intptr_t)&savestates->slots[4], _("Slot 4"), NULL, RG_DIALOG_FLAG_NORMAL, &slot_select_cb},
-        {(intptr_t)&savestates->slots[5], _("Slot 5"), NULL, RG_DIALOG_FLAG_NORMAL, &slot_select_cb},
-        {(intptr_t)&savestates->slots[6], _("Slot 6"), NULL, RG_DIALOG_FLAG_NORMAL, &slot_select_cb},
-        {(intptr_t)&savestates->slots[7], _("Slot 7"), NULL, RG_DIALOG_FLAG_NORMAL, &slot_select_cb},
-        {(intptr_t)&savestates->slots[8], _("Slot 8"), NULL, RG_DIALOG_FLAG_NORMAL, &slot_select_cb},
-        {(intptr_t)&savestates->slots[9], _("Slot 9"), NULL, RG_DIALOG_FLAG_NORMAL, &slot_select_cb},
-        {(intptr_t)&savestates->slots[10], _("Slot 10"), NULL, RG_DIALOG_FLAG_NORMAL, &slot_select_cb},
-        {(intptr_t)&savestates->slots[11], _("Slot 11"), NULL, RG_DIALOG_FLAG_NORMAL, &slot_select_cb},
-        {(intptr_t)&savestates->slots[12], _("Slot 12"), NULL, RG_DIALOG_FLAG_NORMAL, &slot_select_cb},
-        {(intptr_t)&savestates->slots[13], _("Slot 13"), NULL, RG_DIALOG_FLAG_NORMAL, &slot_select_cb},
-        {(intptr_t)&savestates->slots[14], _("Slot 14"), NULL, RG_DIALOG_FLAG_NORMAL, &slot_select_cb},
-        {(intptr_t)&savestates->slots[15], _("Slot 15"), NULL, RG_DIALOG_FLAG_NORMAL, &slot_select_cb},
         RG_DIALOG_END
     };
 

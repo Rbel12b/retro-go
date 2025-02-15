@@ -97,5 +97,9 @@
 		"files.watcherExclude": {
 			"**/build/**": true,
 		},
+		"files.associations": {
+			"compare": "cpp",
+			"cstdint": "cpp"
+		},
 	}
 }

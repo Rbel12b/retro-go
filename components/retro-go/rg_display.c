@@ -1,4 +1,3 @@
-extern "C"{
 #include "rg_system.h"
 #include "rg_display.h"
 
@@ -609,4 +608,3 @@ void rg_display_init(void)
         load_border_file(config.border_file);
     RG_LOGI("Display ready.\n");
 }
-} // extern C

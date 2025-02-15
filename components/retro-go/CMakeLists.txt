@@ -1,4 +1,4 @@
-set(COMPONENT_SRCDIRS ". drivers/audio fonts libs/netplay libs/lodepng ./../ESP32-S3-VGA/src")
+set(COMPONENT_SRCDIRS ". drivers/audio drivers/display fonts libs/netplay libs/lodepng ./../ESP32-S3-VGA/src")
 set(COMPONENT_ADD_INCLUDEDIRS ". libs/netplay libs/lodepng ./../ESP32-S3-VGA/src")
 if((IDF_VERSION_MAJOR EQUAL 5) AND (IDF_VERSION_MINOR GREATER 2)) # esp-idf 5.3+
     set(COMPONENT_REQUIRES "spi_flash fatfs app_update json nvs_flash esp_adc esp_timer esp_psram esp_wifi esp_http_client esp_driver_ledc driver")
@@ -20,7 +20,6 @@ component_compile_options(
     -Wno-unused-function
     -Wno-error=address
     -fexceptions
-    -fdiagnostics-color=always
 )
 set_source_files_properties(
     rg_audio.c rg_utils.c rg_surface.c libs/lodepng/lodepng.c
@@ -28,7 +27,7 @@ set_source_files_properties(
     -O2
 )
 set_source_files_properties(
-    rg_display.cpp ./../ESP32-S3-VGA/src/Mode.cpp ./../ESP32-S3-VGA/src/PinConfig.cpp ./../ESP32-S3-VGA/src/VGA.cpp
+    rg_display.c drivers/display/vga.cpp ./../ESP32-S3-VGA/src/Mode.cpp ./../ESP32-S3-VGA/src/PinConfig.cpp ./../ESP32-S3-VGA/src/VGA.cpp
     PROPERTIES COMPILE_FLAGS
     -O3
 )

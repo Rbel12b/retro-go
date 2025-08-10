@@ -45,6 +45,7 @@
 
 #define RG_GPIO_I2C_SDA             GPIO_NUM_1
 #define RG_GPIO_I2C_SCL             GPIO_NUM_2
+#define RG_I2C_GPIO_ADDR            0x20
 
 // Battery
 #define RG_BATTERY_DRIVER           0

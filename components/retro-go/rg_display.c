@@ -28,7 +28,16 @@ static const char *SETTING_ROTATION = "DispRotation";
 static const char *SETTING_BORDER = "DispBorder";
 static const char *SETTING_CUSTOM_ZOOM = "DispCustomZoom";
 
-#if RG_SCREEN_DRIVER == 0 /* ILI9341 */
+static void lcd_init(void);
+static void lcd_deinit(void);
+static void lcd_sync(void);
+static void lcd_set_rotation(int rotation);
+static void lcd_set_backlight(float percent);
+static void lcd_set_window(int left, int top, int width, int height);
+static inline uint16_t *lcd_get_buffer(size_t length);
+static inline void lcd_send_buffer(uint16_t *buffer, size_t length);
+
+#if RG_SCREEN_DRIVER == 0 /* ILI9341/ST7789 */
 #include "drivers/display/ili9341.h"
 #elif RG_SCREEN_DRIVER == 1
 #include "drivers/display/vga.h"
@@ -190,8 +199,8 @@ static inline void write_update(const rg_surface_t *update)
 
         if (need_update)
         {
-            int left = display.screen.margin_left + draw_left;
-            int top = display.screen.margin_top + draw_top + y - lines_to_copy;
+            int left = display.screen.margins.left + draw_left;
+            int top = display.screen.margins.top + draw_top + y - lines_to_copy;
             if (top != window_top)
                 lcd_set_window(left, top, draw_width, lines_remaining);
             lcd_send_buffer(line_buffer, draw_width * lines_to_copy);
@@ -354,11 +363,13 @@ rg_display_counters_t rg_display_get_counters(void)
 
 int rg_display_get_width(void)
 {
+    // return display.screen.real_width - (display.screen.margins.left + display.screen.margins.right);
     return display.screen.width;
 }
 
 int rg_display_get_height(void)
 {
+    // return display.screen.real_height - (display.screen.margins.top + display.screen.margins.bottom);
     return display.screen.height;
 }
 
@@ -500,7 +511,7 @@ void rg_display_write_rect(int left, int top, int width, int height, int stride,
     for (size_t y = 0; y < height; ++y)
         screen_line_checksum[top + y] = 0;
 
-    lcd_set_window(left + display.screen.margin_left, top + display.screen.margin_top, width, height);
+    lcd_set_window(left + display.screen.margins.left, top + display.screen.margins.top, width, height);
 
     for (size_t y = 0; y < height;)
     {
@@ -536,7 +547,7 @@ void rg_display_clear_rect(int left, int top, int width, int height, uint16_t co
     int pixels_remaining = width * height;
     if (pixels_remaining > 0)
     {
-        lcd_set_window(left + display.screen.margin_left, top + display.screen.margin_top, width, height);
+        lcd_set_window(left + display.screen.margins.left, top + display.screen.margins.top, width, height);
         while (pixels_remaining > 0)
         {
             uint16_t *buffer = lcd_get_buffer(LCD_BUFFER_LENGTH);
@@ -553,8 +564,8 @@ void rg_display_clear_except(int left, int top, int width, int height, uint16_t 
 {
     // Clear everything except the specified area
     // FIXME: Do not ignore left/top...
-    int left_offset = -display.screen.margin_left;
-    int top_offset = -display.screen.margin_top;
+    int left_offset = -display.screen.margins.left;
+    int top_offset = -display.screen.margins.top;
     int horiz = (display.screen.real_width - width + 1) / 2;
     int vert = (display.screen.real_height - height + 1) / 2;
     rg_display_clear_rect(left_offset, top_offset, horiz, display.screen.real_height, color_le); // Left
@@ -566,13 +577,14 @@ void rg_display_clear_except(int left, int top, int width, int height, uint16_t 
 void rg_display_clear(uint16_t color_le)
 {
     // We ignore margins here, we want to fill the entire screen
-    rg_display_clear_rect(-display.screen.margin_left, -display.screen.margin_top, display.screen.real_width,
+    rg_display_clear_rect(-display.screen.margins.left, -display.screen.margins.top, display.screen.real_width,
                           display.screen.real_height, color_le);
 }
 
 void rg_display_deinit(void)
 {
     rg_task_send(display_task_queue, &(rg_task_msg_t){.type = RG_TASK_MSG_STOP});
+    // lcd_set_backlight(0);
     lcd_deinit();
     RG_LOGI("Display terminated.\n");
 }
@@ -592,15 +604,17 @@ void rg_display_init(void)
     display = (rg_display_t){
         .screen.real_width = RG_SCREEN_WIDTH,
         .screen.real_height = RG_SCREEN_HEIGHT,
-        .screen.margin_top = RG_SCREEN_MARGIN_TOP,
-        .screen.margin_bottom = RG_SCREEN_MARGIN_BOTTOM,
-        .screen.margin_left = RG_SCREEN_MARGIN_LEFT,
-        .screen.margin_right = RG_SCREEN_MARGIN_RIGHT,
-        .screen.width = RG_SCREEN_WIDTH - RG_SCREEN_MARGIN_LEFT - RG_SCREEN_MARGIN_RIGHT,
-        .screen.height = RG_SCREEN_HEIGHT - RG_SCREEN_MARGIN_TOP - RG_SCREEN_MARGIN_BOTTOM,
+        .screen.width = RG_SCREEN_WIDTH,
+        .screen.height = RG_SCREEN_HEIGHT,
+        .screen.margins = RG_SCREEN_VISIBLE_AREA,
         .changed = true,
     };
+    display.screen.width -= display.screen.margins.left + display.screen.margins.right;
+    display.screen.height -= display.screen.margins.top + display.screen.margins.bottom;
     lcd_init();
+    rg_display_clear(C_BLACK);
+    rg_task_delay(80); // Wait for the screen be cleared before turning on the backlight (40ms doesn't seem to be enough...)
+    lcd_set_backlight(config.backlight);
     display_task_queue = rg_task_create("rg_display", &display_task, NULL, 4 * 1024, RG_TASK_PRIORITY_6, 1);
     if (config.border_file)
         load_border_file(config.border_file);

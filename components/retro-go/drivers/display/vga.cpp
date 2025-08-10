@@ -13,24 +13,36 @@ struct
     int pos = 0;
 } lcd_window;
 
+bool lcd_deinit() { return true; }
+bool lcd_sync() { return true; }
+bool lcd_set_backlight(float percent) { return true; }
+
 uint16_t lcd_buffer_vga[LCD_BUFFER_LENGTH + 1];
-uint16_t *lcd_get_buffer(int)
+uint16_t *lcd_get_buffer(size_t length)
 {
-    return (uint16_t *)lcd_buffer_vga;
+    if (length > LCD_BUFFER_LENGTH)
+    {
+        RG_LOGE("Requested buffer length %d exceeds maximum %d", length, LCD_BUFFER_LENGTH);
+        return NULL;
+    }
+    lcd_window.pos = 0;
+    memset(lcd_buffer_vga, 0, sizeof(lcd_buffer_vga));
+    return lcd_buffer_vga;
 }
 
 
-void lcd_init()
+bool lcd_init()
 {
     if (!vga.init(PinConfig(21, 39, 40, 41, 42, 16, 15, 7, 6, 5, 4, 10, 9, 8, 18, 17, 47, 48), Mode::MODE_320x240x60,
                   16))
     {
         RG_LOGE("Failed to initialive vga display");
-        return;
+        return false;
     }
     vga.start();
+    return true;
 }
-void lcd_send_buffer(uint16_t *data, size_t len)
+bool lcd_send_buffer(uint16_t *data, size_t len)
 {
     uint16_t color = 0;
     for (size_t i = lcd_window.pos; i < (len + lcd_window.pos); i++)
@@ -41,12 +53,14 @@ void lcd_send_buffer(uint16_t *data, size_t len)
     }
     lcd_window.pos += len;
     vga.show();
+    return true;
 }
-void lcd_set_window(int x, int y, int width, int height)
+bool lcd_set_window(int x, int y, int width, int height)
 {
     lcd_window.x = x;
     lcd_window.y = y;
     lcd_window.width = width;
     lcd_window.height = height;
     lcd_window.pos = 0;
+    return true;
 }

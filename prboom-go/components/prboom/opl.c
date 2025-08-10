@@ -209,7 +209,7 @@ static void WriteRegister(unsigned int reg_num, unsigned int value)
     }
 }
 
-static void OPL_AdvanceTime(unsigned int nsamples) 
+static void OPL_AdvanceTime(unsigned int nsamples)
 {
     opl_callback_t callback;
     void *callback_data;
@@ -248,11 +248,11 @@ static void FillBuffer(int16_t *buffer, unsigned int nsamples)
 {
     unsigned int i;
     int sampval;
-    
+
     // FIXME???
     //assert(nsamples < opl_sample_rate);
 
-    Chip__GenerateBlock2(&opl_chip, nsamples, mix_buffer);
+    Chip__GenerateBlock2(&opl_chip, nsamples, (Bit32s*)mix_buffer);
 
     // Mix into the destination buffer, doubling up into stereo.
 
@@ -276,7 +276,7 @@ void OPL_Render_Samples (void *dest, unsigned buffer_len)
 
 
     short *buffer = (short *) dest;
-   
+
 
     // Repeatedly call the OPL emulator update function until the buffer is
     // full.

@@ -138,7 +138,7 @@
 #endif
 
 #ifndef RG_ZIP_SUPPORT
-#define RG_ZIP_SUPPORT 1
+#define RG_ZIP_SUPPORT 0
 #endif
 
 #ifndef RG_SCREEN_PARTIAL_UPDATES

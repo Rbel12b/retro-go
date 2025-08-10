@@ -371,6 +371,11 @@ static void platform_init(void)
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) < 0)
         RG_PANIC("SDL Init failed!");
 #endif
+
+#if defined(RG_CUSTOM_PLATFORM_INIT)
+    RG_LOGI("Running platform-specific init...\n");
+    RG_CUSTOM_PLATFORM_INIT();
+#endif
 }
 
 rg_app_t *rg_system_reinit(int sampleRate, const rg_handlers_t *handlers, void *_unused)
@@ -438,6 +443,11 @@ rg_app_t *rg_system_init(int sampleRate, const rg_handlers_t *handlers, void *_u
     printf("%s %s (%s)\n", app.name, app.version, app.buildDate);
     printf(" built for: %s. type: %s\n", RG_TARGET_NAME, app.isRelease ? "release" : "dev");
     printf("========================================================\n\n");
+
+#ifdef RG_I2C_GPIO_DRIVER
+    rg_i2c_init();
+    rg_i2c_gpio_init();
+#endif
 
     rg_storage_init();
     rg_input_init();
@@ -1063,7 +1073,7 @@ int rg_system_get_log_level(void)
 
 void rg_system_set_overclock(int level)
 {
-#ifdef ESP_PLATFORM
+#if defined(ESP_PLATFORM) && CONFIG_IDF_TARGET_ESP32
     // None of this is documented by espressif but can be found in the file rtc_clk.c
     #define I2C_BBPLL                   0x66
     #define I2C_BBPLL_ENDIV5              11
@@ -1139,6 +1149,8 @@ void rg_system_set_overclock(int level)
     // overclock_ratio = (240 + (app.overclock * 40)) / 240.f;
 
     // rg_audio_set_sample_rate(app.sampleRate / overclock_ratio);
+#else
+    RG_LOGE("Overclock not supported on this platform!");
 #endif
 
     app.overclock = level;
